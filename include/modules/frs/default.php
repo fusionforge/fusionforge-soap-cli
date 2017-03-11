@@ -1,6 +1,6 @@
 <?php
 /**
- * GForge Command-line Interface
+ * FusionForge Command-line Interface
  *
  * Copyright 2005 GForge, LLC
  * http://fusionforge.org/
@@ -86,9 +86,9 @@ function frs_do_addpackage() {
 	$group_id = get_working_group($PARAMS);
 
 	$cmd_params = array(
-					"group_id"		=> $group_id,
-					"package_name"	=> $name,
-					"is_public"		=> $is_public
+				"group_id"	=> $group_id,
+				"package_name"	=> $name,
+				"is_public"	=> $is_public
 				);
 
 	$res = $SOAP->call("addPackage", $cmd_params);
@@ -180,12 +180,12 @@ function frs_do_addrelease() {
 	}
 
 	$add_params = array(
-						"group_id"		=> $group_id,
-						"package_id"	=> $package_id,
-						"name"			=> $name,
-						"notes"			=> $notes,
-						"changes"		=> $changes,
-						"release_date"	=> $release_date
+				"group_id"	=> $group_id,
+				"package_id"	=> $package_id,
+				"name"		=> $name,
+				"notes"		=> $notes,
+				"changes"	=> $changes,
+				"release_date"	=> $release_date
 					);
 
 	$res = $SOAP->call("addRelease", $add_params);
@@ -211,9 +211,9 @@ function frs_do_files() {
 	$group_id = get_working_group($PARAMS);
 
 	$cmd_params = array(
-					"group_id" => $group_id,
-					"package_id" => $package_id,
-					"release_id" => $release_id,
+			"group_id" => $group_id,
+			"package_id" => $package_id,
+			"release_id" => $release_id,
 				);
 	$res = $SOAP->call("getFiles", $cmd_params);
 	if (($error = $SOAP->getError())) {
@@ -332,14 +332,14 @@ function frs_do_addfile() {
 	$group_id = get_working_group($PARAMS);
 
 	$add_params = array(
-					"group_id"			=> $group_id,
-					"package_id"		=> $package_id,
-					"release_id"		=> $release_id,
-					"name"				=> $name,
-					"base64_contents"	=> $base64_contents,
-					"type_id"			=> $type_id,
-					"processor_id"		=> $processor_id,
-					"release_time"		=> $release_time
+			"group_id"		=> $group_id,
+			"package_id"		=> $package_id,
+			"release_id"		=> $release_id,
+			"name"			=> $name,
+			"base64_contents"	=> $base64_contents,
+			"type_id"		=> $type_id,
+			"processor_id"		=> $processor_id,
+			"release_time"		=> $release_time
 				);
 
 	$res = $SOAP->call("addFile", $add_params);

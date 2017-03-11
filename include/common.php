@@ -1,8 +1,9 @@
 <?php
 /**
- * GForge Command-line Interface
+ * FusionForge Command-line Interface
  *
  * Copyright 2005 GForge, LLC
+ * Copyright 2017, Franck Villaume - TrivialDev
  * http://fusionforge.org/
  *
  * This file is part of FusionForge.
@@ -85,10 +86,10 @@ function get_parameter(&$parameter_array, $parameter, $require_value=false) {
 				$passed_parameter = $passed_string;
 				$has_value = false;
 			}
-			
+
 			if (!is_array($parameter)) $search_array = array($parameter);
 			else $search_array = $parameter;
-			
+
 			foreach ($search_array as $alias) {
 				if ($alias == $passed_parameter) {		// Match
 					if ($has_value) return $passed_value;
@@ -96,7 +97,7 @@ function get_parameter(&$parameter_array, $parameter, $require_value=false) {
 					else return true;		// notify parameter was passed
 				}
 			}
-			
+
 		} elseif (preg_match("/^\\-(.+)/",$parameter_array[$i],$res)) {	// Single character parameter? (IE "-z") or a group of flags (IE "-zxvf")
 			$passed_parameter = $res[1];
 			if (strlen($passed_parameter) == 1) {		// Some flag like "-x" or parameter "-U username"
@@ -112,10 +113,10 @@ function get_parameter(&$parameter_array, $parameter, $require_value=false) {
 			} else {		// Several flags grouped into one string like "-zxvf"
 				$has_value = false;
 			}
-			
+
 			if (!is_array($parameter)) $search_array = array($parameter);
 			else $search_array = $parameter;
-			
+
 			foreach ($search_array as $alias) {
 				if (strlen($alias) == 1) {
 					if (strpos($passed_parameter, $alias) !== false) {	// Found a match
@@ -127,7 +128,7 @@ function get_parameter(&$parameter_array, $parameter, $require_value=false) {
 			}
 		}
 	}
-	
+
 	return null;
 }
 
@@ -140,18 +141,18 @@ function get_parameter(&$parameter_array, $parameter, $require_value=false) {
 function get_group_id($unix_group_name) {
 	static $cached_res = array();
 	global $SOAP;
-	
+
 	if (array_key_exists($unix_group_name, $cached_res)) {
 		return $cached_res[$unix_group_name];
 	}
-	
+
 	$res = $SOAP->call("getGroupsByName", array("group_names" => array($unix_group_name)));
 	if (($error = $SOAP->getError()) || !is_array($res) || count($res) == 0) {		// An error here means that no group was found
 		$group_id = 0;
 	} else {
 		$group_id = $res[0]["group_id"];
 	}
-	
+
 	$cached_res[$unix_group_name] = $group_id;
 	return $group_id;
 }
@@ -213,22 +214,22 @@ function check_date($date) {
 	if (!preg_match("/^([0-9]{2,4})-([0-9]{1,2})-([0-9]{1,2})\$/", $date, $pieces)) {
 		return "Must be in format YYYY-MM-DD";
 	}
-	
+
 	$year = intval($pieces[1]);
 	$month = intval($pieces[2]);
 	$day = intval($pieces[3]);
-	
+
 	if (!checkdate($month, $day, $year)) {
 		return "Is not a valid date";
 	}
-	
+
 	return "";
 }
 
 /**
  * convert_date - Convert a date entered by the user in format YYYY-MM-DD to a timestamp
  * to be inserted in the database.
- * 
+ *
  * This function assumes the date has the correct format
  * @param	string	$date Date
  * @return	int
@@ -236,11 +237,11 @@ function check_date($date) {
 function convert_date($date) {
 	$pieces = array();
 	preg_match("/^([0-9]{2,4})-([0-9]{1,2})-([0-9]{1,2})\$/", $date, $pieces);
-	
+
 	$year = intval($pieces[1]);
 	$month = intval($pieces[2]);
 	$day = intval($pieces[3]);
-	
+
 	return mktime(0, 0, 0, $month, $day, $year);
 }
 
@@ -258,7 +259,7 @@ function show_output($result, $fieldnames = array()) {
 			echo "No results\n";
 			return;
 		}
-		
+
 		if (isset($result[0]) && is_array($result[0])) {
 			show_matrix($result, $fieldnames);
 		} else {
@@ -280,7 +281,7 @@ function show_scalar($result, $fieldnames = array()) {
 	echo "+".str_repeat("-", $length)."+\n";
 	echo "|".center_text($title, $length)."|\n";
 	echo "+".str_repeat("-", $length)."+\n";
-	
+
 	// show the item
 	echo "| ".$result.str_repeat(" ", $length-strlen($result)-1)."|\n";
 	echo "+".str_repeat("-", $length)."+\n";
@@ -298,9 +299,9 @@ function show_vector($result, $fieldnames = array()) {
 		show_matrix($foo_matrix, $fieldnames);
 		return;
 	}
-	
+
 	$title = (isset($fieldnames[0])) ? $fieldnames[0] : "Result";
-	
+
 	$length = strlen($title);
 	// get the maximum length for a single item
 	foreach ($result as $item) {
@@ -308,17 +309,17 @@ function show_vector($result, $fieldnames = array()) {
 		$length = max(strlen($item), $length);
 	}
 	$length = $length + 2;		// +2 for having spaces at the beginning and the end
-	
+
 	// show the title
 	echo "+".str_repeat("-", $length)."+\n";
 	echo "|".center_text($title, $length)."|\n";
 	echo "+".str_repeat("-", $length)."+\n";
-	
+
 	// show each item
 	foreach ($result as $item) {
 		echo "| ".$item.str_repeat(" ", $length-strlen($item)-1)."|\n";
 	}
-	
+
 	// show last line
 	echo "+".str_repeat("-", $length)."+\n";
 }
@@ -326,10 +327,10 @@ function show_vector($result, $fieldnames = array()) {
 function show_matrix($result, $fieldnames = array()) {
 	$titles = array();
 	$lengths = array();
-	
+
 	// this is for showing multidimensional arrays
 	static $recursive_id = 1;
-	
+
 	foreach ($result as $row) {
 		foreach ($row as $colname => $value) {
 			if (!isset($titles[$colname])) {
@@ -339,7 +340,7 @@ function show_matrix($result, $fieldnames = array()) {
 					$titles[$colname] = $fieldnames[$colname];
 				}
 			}
-			
+
 			if (!is_array($value)) {
 				if (!isset($lengths[$colname]) || $lengths[$colname] < strlen($value)+2) {
 					$lengths[$colname] = max(strlen($value), strlen($titles[$colname]));
@@ -367,7 +368,7 @@ function show_matrix($result, $fieldnames = array()) {
 		echo "+".str_repeat("-", $length);
 	}
 	echo "+\n";
-	
+
 	$recursive_items = array();
 	// now show the values
 	foreach ($result as $row) {
@@ -381,21 +382,21 @@ function show_matrix($result, $fieldnames = array()) {
 				$value = "[".$recursive_id."]";
 				$recursive_id++;
 			}
-			
+
 			$length = $lengths[$colname];
 			if (is_array($value)) continue;
 			echo "| ".$value.str_repeat(" ", $length-strlen($value)-1);
 		}
 		echo "|\n";
 	}
-	
+
 	// show last line
 	foreach ($titles as $colname => $title) {
 		$length = $lengths[$colname];
 		echo "+".str_repeat("-", $length);
 	}
 	echo "+\n";
-	
+
 	// now recursively show the multidimensional array
 	foreach ($recursive_items as $id => $item) {
 		echo "\n";

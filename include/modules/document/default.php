@@ -1,6 +1,6 @@
 <?php
 /**
- * GForge Command-line Interface
+ * FusionForge Command-line Interface
  *
  * Copyright 2005 GForge, LLC
  * http://fusionforge.org/
@@ -75,7 +75,7 @@ function document_do_updategroup(){
 	}
 
 	$res = $SOAP->call("getDocumentGroup", array("group_id" => $group_id,
-												"doc_group"	=> $doc_group));
+						"doc_group"	=> $doc_group));
 	if (($error = $SOAP->getError())) {
 		$LOG->add($SOAP->responseData);
 		exit_error($error, $SOAP->faultcode);
@@ -91,14 +91,14 @@ function document_do_updategroup(){
 		$new_parent_group=$res['parent_doc_group'];
 	}
 
-    if (empty($new_parent_group)) {
-        $new_parent_group = 0;
-    }
+	if (empty($new_parent_group)) {
+		$new_parent_group = 0;
+	}
 
 	$params = array(
-			"group_id" => $group_id,
-			"doc_group"	=> $doc_group,
-			"new_groupname"	=> $new_name,
+			"group_id"		=> $group_id,
+			"doc_group"		=> $doc_group,
+			"new_groupname"		=> $new_name,
 			"new_parent_doc_group"	=> $new_parent_group
 			);
 
@@ -147,13 +147,13 @@ function document_do_adddocument(){
 	}
 
 	$params = array(
-			"group_id" => $group_id,
+			"group_id"	=> $group_id,
 			"doc_group"	=> $doc_group,
-			"title"	=> $title,
+			"title"		=> $title,
 			"description"	=> $description,
 			"base64_contents" => $base64_contents,
-			"filename" => $filename,
-			"file_url" => $url
+			"filename"	=> $filename,
+			"file_url"	=> $url
 			);
 
 	$res = $SOAP->call("addDocument", $params);
@@ -242,15 +242,15 @@ EOF;
 	}
 
 	$params = array(
-			"group_id" => $group_id,
+			"group_id"	=> $group_id,
 			"doc_group"	=> $doc_group,
 			"doc_id"	=> $doc_id,
-			"title"	=> $title,
+			"title"		=> $title,
 			"description"	=> $description,
 			"base64_contents" => $base64_contents,
-			"filename" => $filename,
-			"file_url" => $url,
-			"state_id" => $state_id
+			"filename"	=> $filename,
+			"file_url"	=> $url,
+			"state_id"	=> $state_id
 			);
 
 	$SOAP->call("updateDocument", $params);
@@ -345,8 +345,8 @@ function document_do_group() {
 	}
 
 	$params = array(
-			"group_id"		=> $group_id,
-			"doc_group"		=> $doc_group
+			"group_id"	=> $group_id,
+			"doc_group"	=> $doc_group
 			);
 
 	$res = $SOAP->call("getDocumentGroup", $params);
@@ -396,8 +396,8 @@ function document_do_listdocuments() {
 	}
 
 	$params = array(
-			"group_id"		=> $group_id,
-			"doc_group"		=> $doc_group
+			"group_id"	=> $group_id,
+			"doc_group"	=> $doc_group
 			);
 
 	$res = $SOAP->call("getDocuments", $params);
@@ -419,8 +419,8 @@ function document_do_delete() {
 	}
 
 	$params = array(
-			"group_id"		=> $group_id,
-			"doc_id"		=> $doc_id
+			"group_id"	=> $group_id,
+			"doc_id"	=> $doc_id
 			);
 
 	$SOAP->call("documentDelete", $params);

@@ -1,6 +1,6 @@
 <?php
 /**
- * GForge Command-line Interface
+ * FusionForge Command-line Interface
  *
  * Copyright 2005 GForge, LLC
  * http://fusionforge.org/
@@ -90,12 +90,12 @@ function task_do_list() {
 	$group_id = get_working_group($PARAMS);
 
 	$cmd_params = array(
-				"group_id"			=> $group_id,
+				"group_id"		=> $group_id,
 				"group_project_id"	=> $group_project_id,
 				"assigned_to"		=> $assigned_to,
-				"status"			=> $status,
-				"category"			=> $category,
-				"group"				=> $group
+				"status"		=> $status,
+				"category"		=> $category,
+				"group"			=> $group
 				);
 	$res = $SOAP->call("getProjectTasks", $cmd_params);
 	if (($error = $SOAP->getError())) {
@@ -117,7 +117,7 @@ function task_do_categories() {
 	$group_id = get_working_group($PARAMS);
 
 	$cmd_params = array(
-					"group_id"			=> $group_id,
+					"group_id"		=> $group_id,
 					"group_project_id"	=> $group_project_id
 					);
 
@@ -176,14 +176,14 @@ EOF;
 	if ($input == "yes" || $input == "y") {
 		// Everything is OK... add the task
 		$cmd_params = array(
-					"group_id"			=> $add_data["group_id"],
+					"group_id"		=> $add_data["group_id"],
 					"group_project_id"	=> $add_data["group_project_id"],
-					"summary"			=> $add_data["summary"],
-					"details"			=> $add_data["details"],
-					"priority"			=> $add_data["priority"],
-					"hours"				=> $add_data["hours"],
+					"summary"		=> $add_data["summary"],
+					"details"		=> $add_data["details"],
+					"priority"		=> $add_data["priority"],
+					"hours"			=> $add_data["hours"],
 					"start_date"		=> $add_data["start_date"],
-					"end_date"			=> $add_data["end_date"],
+					"end_date"		=> $add_data["end_date"],
 					"category_id"		=> $add_data["category_id"],
 					"percent_complete"	=> $add_data["percent_complete"],
 					"assigned_to"		=> $add_data["assigned_to"],
@@ -598,12 +598,12 @@ function get_task_params($adding = false) {
 	$dependent_on_names = "";
 	if (count($dependent_on) > 0) {
 		$tasks_res = $SOAP->call("getProjectTasks", array(
-									"group_id" 			=> $group_id,
+									"group_id" 		=> $group_id,
 									"group_project_id"	=> $group_project_id,
 									"assigned_to"		=> "",
-									"status"			=> "",
-									"category"			=> "",
-									"group"				=> ""
+									"status"		=> "",
+									"category"		=> "",
+									"group"			=> ""
 								));
 		if (($error = $SOAP->getError())) {
 			$LOG->add($SOAP->responseData);

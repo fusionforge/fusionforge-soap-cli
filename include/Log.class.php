@@ -1,6 +1,6 @@
 <?php
 /**
- * GForge Command-line Interface
+ * FusionForge Command-line Interface
  *
  * Copyright 2005 GForge, LLC
  * http://fusionforge.org/
@@ -27,7 +27,7 @@
  */
 class Log {
 	var $level;
-	
+
 	/**
 	 * Log - Constructor
 	 */
@@ -45,7 +45,7 @@ class Log {
 	function setLevel($level) {
 		$this->level = $level;
 	}
-	
+
 	/**
 	 * add - Add some text to the log
 	 *

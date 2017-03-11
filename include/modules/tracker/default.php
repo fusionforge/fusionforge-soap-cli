@@ -1,6 +1,6 @@
 <?php
 /**
- * GForge Command-line Interface
+ * FusionForge Command-line Interface
  *
  * Copyright 2005 GForge, LLC
  * http://fusionforge.org/
@@ -185,12 +185,12 @@ EOF;
 	if ($input == "yes" || $input == "y") {
 		// Everything is OK... add the artifact
 		$cmd_params = array(
-				"group_id"			=> $add_data["group_id"],
+				"group_id"		=> $add_data["group_id"],
 				"group_artifact_id"	=> $add_data["group_artifact_id"],
-				"priority"			=> $add_data["priority"],
+				"priority"		=> $add_data["priority"],
 				"assigned_to"		=> $add_data["assigned_to"],
-				"summary"			=> $add_data["summary"],
-				"details"			=> $add_data["details"],
+				"summary"		=> $add_data["summary"],
+				"details"		=> $add_data["details"],
 				"extra_fields"		=> $add_data["extra_fields_data"]
 				);
 		$res = $SOAP->call("addArtifact", $cmd_params);
@@ -332,7 +332,7 @@ function tracker_do_messages() {
 	$group_id = get_working_group($PARAMS);
 
 	$cmd_params = array(
-		"group_id"			=> $group_id,
+		"group_id"		=> $group_id,
 		"group_artifact_id"	=> $group_artifact_id,
 		"artifact_id"		=> $artifact_id
 	);
@@ -366,10 +366,10 @@ function tracker_do_addmessage() {
 	$group_id = get_working_group($PARAMS);
 
 	$cmd_params = array(
-		"group_id"			=> $group_id,
+		"group_id"		=> $group_id,
 		"group_artifact_id"	=> $group_artifact_id,
 		"artifact_id"		=> $artifact_id,
-		"body"				=> $body
+		"body"			=> $body
 	);
 	$res = $SOAP->call("addArtifactMessage", $cmd_params);
 	if (($error = $SOAP->getError())) {
@@ -396,7 +396,7 @@ function tracker_do_files() {
 	$group_id = get_working_group($PARAMS);
 
 	$cmd_params = array(
-		"group_id"			=> $group_id,
+		"group_id"		=> $group_id,
 		"group_artifact_id"	=> $group_artifact_id,
 		"artifact_id"		=> $artifact_id,
 	);
@@ -442,10 +442,10 @@ function tracker_do_getfile() {
 	$group_id = get_working_group($PARAMS);
 
 	$cmd_params = array(
-		"group_id"			=> $group_id,
+		"group_id"		=> $group_id,
 		"group_artifact_id"	=> $group_artifact_id,
 		"artifact_id"		=> $artifact_id,
-		"file_id"			=> $file_id
+		"file_id"		=> $file_id
 	);
 
 	$res = $SOAP->call("getArtifactFileData", $cmd_params);
@@ -511,13 +511,13 @@ function tracker_do_addfile() {
 	$filetype = "";
 
 	$cmd_params = array(
-					"group_id"			=> $group_id,
-					"group_artifact_id"	=> $group_artifact_id,
-					"artifact_id"		=> $artifact_id,
-					"base64_contents"	=> $base64_contents,
-					"description"		=> $description,
-					"filename"			=> $filename,
-					"filetype"			=> $filetype
+				"group_id"		=> $group_id,
+				"group_artifact_id"	=> $group_artifact_id,
+				"artifact_id"		=> $artifact_id,
+				"base64_contents"	=> $base64_contents,
+				"description"		=> $description,
+				"filename"		=> $filename,
+				"filetype"		=> $filetype
 				);
 
 	$res = $SOAP->call("addArtifactFile", $cmd_params);
@@ -541,8 +541,8 @@ function tracker_do_technicians() {
 	$group_id = get_working_group($PARAMS);
 
 	$cmd_params = array(
-					"group_id"			=> $group_id,
-					"group_artifact_id"	=> $group_artifact_id
+				"group_id"		=> $group_id,
+				"group_artifact_id"	=> $group_artifact_id
 				);
 
 	$res = $SOAP->call("getArtifactTechnicians", $cmd_params);
@@ -785,29 +785,29 @@ function get_artifact_params($adding = false) {
 	}
 
 	// return the data to insert
-	$ret["data"]["group_id"]						= $group_id;
-	$ret["data"]["group_artifact_id"]				= $group_artifact_id;
+	$ret["data"]["group_id"]				= $group_id;
+	$ret["data"]["group_artifact_id"]			= $group_artifact_id;
 	if ($updating) 	{
-		$ret["data"]["artifact_id"]					= $artifact_id;
-		$ret["data"]["original_data"]				= $original_data;
+		$ret["data"]["artifact_id"]			= $artifact_id;
+		$ret["data"]["original_data"]			= $original_data;
 		if ($status_id) $ret["data"]["status_id"]	= $status_id;
-		if ($priority) $ret["data"]["priority"] 		= $priority;
+		if ($priority) $ret["data"]["priority"] 	= $priority;
 		if ($assigned_to) $ret["data"]["assigned_to"] 	= $assigned_to;
-		if ($summary) $ret["data"]["summary"] 			= $summary;
-		if ($details) $ret["data"]["details"] 			= $details;
+		if ($summary) $ret["data"]["summary"] 		= $summary;
+		if ($details) $ret["data"]["details"] 		= $details;
 
 	} else {
-		$ret["data"]["priority"] 					= $priority;
-		$ret["data"]["assigned_to"] 				= $assigned_to;
-		$ret["data"]["summary"] 					= $summary;
-		$ret["data"]["details"] 					= $details;
+		$ret["data"]["priority"] 			= $priority;
+		$ret["data"]["assigned_to"] 			= $assigned_to;
+		$ret["data"]["summary"] 			= $summary;
+		$ret["data"]["details"] 			= $details;
 	}
-	$ret["data"]["extra_fields_data"]				= $extra_fields_data;
+	$ret["data"]["extra_fields_data"]			= $extra_fields_data;
 
 	// also return the textual description of the data
-	$ret["desc"]["group_name"]						= $group_name;
-	$ret["desc"]["artifact_type_name"]				= $artifact_type_name;
-	if ($updating) $ret["desc"]["original_summary"]	= $artifact_summary;
+	$ret["desc"]["group_name"]				= $group_name;
+	$ret["desc"]["artifact_type_name"]			= $artifact_type_name;
+	if ($updating) $ret["desc"]["original_summary"]		= $artifact_summary;
 	if ($priority) $ret["desc"]["priority"]			= $priority;
 	if ($summary) $ret["desc"]["summary"]			= $summary;
 	if ($details) $ret["desc"]["details"]			= $details;

@@ -1,30 +1,31 @@
-#!/usr/bin/php -q
+#! /usr/bin/php -f
 <?php
 /**
- * GForge Command-line Interface
+ * FusionForge Command-line Interface
  *
  * Copyright 2005 GForge, LLC
+ * Copyright 2017 Franck Villaume - TrivialDev
  * http://fusionforge.org/
  *
  * This file is part of FusionForge.
  *
  * FusionForge is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation; either version 2 of the License,
+ * or (at your option) any later version.
  *
- * FusionForge is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * FusionForge is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along
- * with FusionForge; if not, write to the Free Software Foundation, Inc.,
+ * You should have received a copy of the GNU General Public License
+ * along with FusionForge; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /**
- * GForge CLI main script
+ * FusionForge CLI main script
  *
  * This script parses command line parameters and passes control to the specified module
  * files.
@@ -38,17 +39,17 @@
 define("NUSOAP_DIR",		dirname(__FILE__)."/nusoap/lib/");
 /**
  * Directory where common include files and module scripts are located (use trailing slash)
- */ 
-define("GFORGE_CLI_DIR",	dirname(__FILE__)."/include/");
+ */
+define("FFORGE_CLI_DIR",	dirname(__FILE__)."/include/");
 /**
  * URL of your server's WSDL
  */
-if (array_key_exists("GFORGE_WSDL", $_ENV)) {
-	define("WSDL_URL",			$_ENV["GFORGE_WSDL"]);
-} else if(getenv('GFORGE_WSDL')) {
-	define("WSDL_URL",			getenv('GFORGE_WSDL'));
+if (array_key_exists("FFORGE_WSDL", $_ENV)) {
+	define("WSDL_URL",			$_ENV["FFORGE_WSDL"]);
+} else if(getenv('FFORGE_WSDL')) {
+	define("WSDL_URL",			getenv('FFORGE_WSDL'));
 } else {
-	define("WSDL_URL",			"http://acos.alcatel-lucent.com/soap/index.php?wsdl");
+	define("WSDL_URL",			"https://fusionforge.org/soap/index.php?wsdl");
 }
 
 /**** END OF CONFIGURATION SECTION ****/
@@ -63,10 +64,10 @@ if (function_exists('date_default_timezone_set') && function_exists('date_defaul
 	@date_default_timezone_set(@date_default_timezone_get());
 
 /* Include common files */
-require_once(NUSOAP_DIR."nusoap.php");		// Main NuSOAP library
-require_once(GFORGE_CLI_DIR."common.php");	// Common functions, variables and defines
-require_once(GFORGE_CLI_DIR."GForgeSOAP.class.php");	// GForge's SOAP wrapper
-require_once(GFORGE_CLI_DIR."Log.class.php");	// Logging class
+require_once(NUSOAP_DIR."nusoap.php");				// Main NuSOAP library
+require_once(FFORGE_CLI_DIR."common.php");			// Common functions, variables and defines
+require_once(FFORGE_CLI_DIR."FusionForgeSOAP.class.php");	// FusionForge's SOAP wrapper
+require_once(FFORGE_CLI_DIR."Log.class.php");			// Logging class
 
 // Disable memory_limit for CLI scripts.
 ini_set("memory_limit", -1);
@@ -89,14 +90,14 @@ for ($i = 1; $i <= $argc-1; $i++) {
 		// Increase verbose level
 		$LOG->setLevel(1);
 	}
-	
+
 	// Not a parameter for the main script (does not start with "-").
 	// Then, it must be a name of a module or a name of a function
 	else if (!preg_match("/^-/", $argv[$i])) {
 		$function_index = $i;
 		break;
 	}
-	
+
 	// Unknown parameter
 	else {
 		exit_error("Unknown parameter: \"".$argv[$i]."\"");
@@ -114,10 +115,10 @@ $name = trim($argv[$function_index]);
 // Now, check if the name corresponds to a module. It corresponds to a module
 // if there exists a directory with that name. In that case, execute the "default.php"
 // script in that directory
-if (is_dir(GFORGE_CLI_DIR."modules/".$name)) {		// We've found a module with that name
-	$script = GFORGE_CLI_DIR."modules/".$name."/default.php";
+if (is_dir(FFORGE_CLI_DIR."modules/".$name)) {		// We've found a module with that name
+	$script = FFORGE_CLI_DIR."modules/".$name."/default.php";
 } else {
-	$script = GFORGE_CLI_DIR."modules/default.php";
+	$script = FFORGE_CLI_DIR."modules/default.php";
 }
 
 if (!file_exists($script)) {
@@ -126,12 +127,12 @@ if (!file_exists($script)) {
 
 // At this point, we know which script we should execute.
 // Now we need to prepare the environment for the script (common variables,
-// pass the parameters, etc) 
+// pass the parameters, etc)
 
 // Set up the parameters for the script... we don't need to pass that script the parameters that were
 // passed to THIS script
 $PARAMS = array_slice($argv, $function_index);
-$SOAP = new GForgeSOAP();
+$SOAP = new FForgeSOAP();
 
 // Pass control to the appropriate script
 include($script);
@@ -146,7 +147,7 @@ exit(0);
 function display_help() {
 	echo <<<EOT
 Syntax:
-gforge [options] [module name] [function] [parameters]
+fusionforge-soap-api [options] [module name] [function] [parameters]
 * Options:
     -h or --help    Display this screen
     -v              Verbose
@@ -159,7 +160,7 @@ Available modules:
    * task
    * tracker
    * wiki
-   
+
 Available functions for the default module:
    * login: Begin a session with the server.
    * logout: Terminate a session

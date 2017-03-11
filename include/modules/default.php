@@ -1,6 +1,6 @@
 <?php
 /**
- * GForge Command-line Interface
+ * FusionForge Command-line Interface
  *
  * Copyright 2005 GForge, LLC
  * http://fusionforge.org/
@@ -21,7 +21,7 @@
  * along with FusionForge; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
- 
+
 /*
 * Variables passed by parent script:
 * - $SOAP: Soap object to talk to the server
@@ -50,7 +50,7 @@ default:
  */
 function default_do_login() {
 	global $PARAMS, $SOAP, $LOG;
-	
+
 	if (get_parameter($PARAMS, "help")) {
 		echo <<<EOF
 login - Log into GForge server
@@ -66,13 +66,13 @@ Example:
 EOF;
 		return;
 	}
-	
+
 	$username = get_parameter($PARAMS, array("username", "U"), true);
 	$password = get_parameter($PARAMS, array("password", "p"), true);
 	$host = get_parameter($PARAMS, "host", true);
 	$secure = get_parameter($PARAMS, array("secure", "s"));
 	$projectname = get_parameter($PARAMS, "project", true);
-	
+
 	// If no username is specified, use the system user name
 	if (strlen($username) == 0) {
 		if (array_key_exists("USER", $_ENV)) {
@@ -81,49 +81,49 @@ EOF;
 			exit_error("You must specify the user name with the --username parameter");
 		}
 	}
-	
+
 	// If no password is specified, ask for it
 	if (strlen($password) == 0) {
 		$password = get_user_input("Password: ", true);
 	}
-	
+
 	if (strlen($host) > 0) {
 		if ($secure) $protocol = "https";
 		else $protocol = "http";
 		$SOAP->setWSDL($protocol."://".$host."/soap/?wsdl");
 	}
-	
+
 	// Terminate an existing session (if any)
 	$SOAP->endSession();
-	
+
 	// try to login in the server
 	$session_string = $SOAP->call("login", array(
 		"userid"	=> $username,
 		"passwd"	=> $password
 	),false);
-	
+
 	// there was an error
 	if (($err = $SOAP->getError())) {
 		exit_error($err, $SOAP->faultcode);
 	}
-	
+
 	// Login is OK, $result containts the session hash string
 	$LOG->add("Logged in as user ".$username.", using session string ".$session_string);
 	echo "Logged in.\n";
 	$SOAP->setSessionString($session_string);
 	$SOAP->setSessionUser($username);
-	
+
 	// If project was specified, get project information and store for future use
 	if (strlen($projectname) > 0) {
 		$group_id = get_group_id($projectname);
 		if (!$group_id) {
 			exit_error("Project \"".$projectname."\" doesn't exist");
 		}
-		
+
 		$SOAP->setSessionGroupID($group_id);
 		$LOG->add("Using group #".$group_id);
 	}
-	
+
 	$SOAP->saveSession();
 }
 
@@ -132,7 +132,7 @@ EOF;
  */
 function default_do_logout() {
 	global $SOAP;
-	
+
 	$SOAP->call("logout");
 	if (($error = $SOAP->getError())) {
 		exit_error($error, $SOAP->faultcode);

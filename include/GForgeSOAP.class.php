@@ -5,8 +5,6 @@
  * Copyright 2005 GForge, LLC
  * http://fusionforge.org/
  *
- * @version   $Id: GForgeSOAP.class.php,v 1.3 2006/02/15 16:50:46 marcelo Exp $
- *
  * This file is part of FusionForge.
  *
  * FusionForge is free software; you can redistribute it and/or modify
@@ -19,9 +17,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with FusionForge; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with FusionForge; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /**
@@ -37,12 +35,9 @@ class GForgeSOAP extends nusoap_client {
 	var $session_string;
 	var $session_file;		// Configuration file for this session
 	var $session_group_id;	// Default group
-	var $sesson_user;		// Logged user
+	var $session_user;		// Logged user
 	
-	/**
-	 * constructor
-	 */
-	function GForgeSOAP() {
+	function __construct() {
 		$this->wsdl_string = "";
 		$this->connected = false;
 		$this->session_string = "";
@@ -52,23 +47,20 @@ class GForgeSOAP extends nusoap_client {
 		// Try to find a dir where to put the session file
 		if (array_key_exists("HOME", $_ENV)) {
 			$session_dir = $_ENV["HOME"]."/";
-		} else if (getenv('HOME')) {
+		} elseif (getenv('HOME')) {
 			$session_dir = getenv('HOME')."/";
-		} else if (array_key_exists("HOMEPATH", $_ENV) && array_key_exists("HOMEDRIVE", $_ENV)) {		// For Windows
+		} elseif (array_key_exists("HOMEPATH", $_ENV) && array_key_exists("HOMEDRIVE", $_ENV)) {		// For Windows
 			$session_dir = $_ENV["HOMEDRIVE"]."\\".$_ENV["HOMEPATH"]."\\";
 		}
 		$this->session_file = $session_dir.".gforgerc";
 		$this->readSession();
 	}
 	
-	/**
+	/*
 	 * call - Calls a SOAP method
-	 *
-	 * @param string	Command name
-	 * @param array	Parameter array
-	 * @param bool		Specify if we should pass the server common parameters like the session ID
 	 */
-	function call($command,$params=array(),$use_extra_params=true) {
+	function call($command, $params = array(), $namespace = 'http://tempuri.org', $soapAction = '', $headers = false,
+				  $rpcParams = NULL, $style = 'rpc', $use = 'encoded') {
 		global $LOG;
 		
 		// checks if a session is established
@@ -81,9 +73,10 @@ class GForgeSOAP extends nusoap_client {
 		}
 		
 		// Add session parameters
-		if ($use_extra_params) {
-			if (!array_key_exists("session_ser", $params)) $params["session_ser"] = $this->session_string;
+		if (!array_key_exists("session_ser", $params)) {
+			$params["session_ser"] = $this->session_string;
 		}
+
 		$LOG->add("GForgeSOAP::Executing command ".$command."...");
 		return parent::call($command,$params);
 	}
@@ -115,7 +108,7 @@ class GForgeSOAP extends nusoap_client {
 	/** 
 	 * setSessionString - Set the session ID for future calls
 	 *
-	 * @param string Session string ID
+	 * @param string $string Session string ID
 	 */
 	function setSessionString($string) {
 		$this->session_string = $string;
@@ -179,4 +172,3 @@ class GForgeSOAP extends nusoap_client {
 		$this->session_user = "";
 	}
 }
-?>

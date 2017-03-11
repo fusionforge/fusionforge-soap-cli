@@ -5,8 +5,6 @@
  * Copyright 2005 GForge, LLC
  * http://fusionforge.org/
  *
- * @version   $Id: Log.class.php,v 1.1.1.1 2005/07/04 13:50:50 marcelo Exp $
- *
  * This file is part of FusionForge.
  *
  * FusionForge is free software; you can redistribute it and/or modify
@@ -41,6 +39,8 @@ class Log {
 	 * setLevel - Set the level of logging
 	 *
 	 * So far only 2 values are accepted: 0 (no logging) and 1 (log to console)
+	 *
+	 * @param int $level
 	 */
 	function setLevel($level) {
 		$this->level = $level;
@@ -49,7 +49,7 @@ class Log {
 	/**
 	 * add - Add some text to the log
 	 *
-	 * @parameter	string Text to log
+	 * @param	string $text Text to log
 	 */
 	function add($text) {
 		if ($this->level) {
@@ -57,4 +57,3 @@ class Log {
 		}
 	}
 }
-?>

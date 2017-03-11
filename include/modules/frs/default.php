@@ -5,8 +5,6 @@
  * Copyright 2005 GForge, LLC
  * http://fusionforge.org/
  *
- * @version   $Id: default.php,v 1.2 2005/10/10 21:01:14 marcelo Exp $
- *
  * This file is part of FusionForge.
  *
  * FusionForge is free software; you can redistribute it and/or modify
@@ -23,7 +21,7 @@
  * along with FusionForge; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
- 
+
 /**
 * Variables passed by parent script:
 * - $SOAP: Soap object to talk to the server
@@ -36,60 +34,50 @@
 $module_name = array_shift($PARAMS);		// Pop off module name
 $function_name = array_shift($PARAMS);		// Pop off function name
 
-switch ($function_name) {
-case "packages":
-	frs_do_pkglist();
-	break;
-case "addpackage":
-	frs_do_addpackage();
-	break;
-case "releases":
-	frs_do_releaselist();
-	break;
-case "addrelease":
-	frs_do_addrelease();
-	break;
-case "files":
-	frs_do_filelist();
-	break;
-case "getfile":
-	frs_do_getfile();
-	break;
-case "addfile":
-	frs_do_addfile();
-	break;
-default:
-	exit_error("Unknown function name: ".$function_name);
-	break;
-}
+$functions = array("packages",
+                   "addpackage",
+                   "releases",
+                   "addrelease",
+                   "files",
+                   "getfile",
+                   "addfile");
 
-function frs_do_pkglist() {
+if (empty($function_name)) {
+    exit_error("Please provide function name: ".implode(', ', $functions));
+}
+if (!in_array($function_name, $functions)) {
+    exit_error("Unknown function name: ".$function_name);
+}
+$frs_do = 'frs_do_'.$function_name;
+$frs_do();
+
+function frs_do_packages() {
 	global $PARAMS, $SOAP, $LOG;
-	
+
 	$group_id = get_working_group($PARAMS);
-	
+
 	$res = $SOAP->call("getPackages", array("group_id" => $group_id));
 	if (($error = $SOAP->getError())) {
 		$LOG->add($SOAP->responseData);
 		exit_error($error, $SOAP->faultcode);
 	}
-	
+
 	show_output($res);
 }
 
 function frs_do_addpackage() {
 	global $PARAMS, $SOAP, $LOG;
-	
+
 	$name = get_parameter($PARAMS, "name", true);
 	if (!$name || strlen($name) == 0) {
 		exit_error("You must enter the name of the package with the --name parameter");
 	}
-	
+
 	$is_public = get_parameter($PARAMS, "public", true);
 	if (is_null($is_public) || strtolower($is_public) == "y" || strtolower($is_public) == "yes" || $is_public == "1") {
 		// by default, set package as public
 		$is_public = 1;
-	} else if (!is_null($is_public) && (strtolower($is_public) == "no" || strtolower($is_public) == "n" || $is_public == "0")) {
+	} elseif (!is_null($is_public) && (strtolower($is_public) == "no" || strtolower($is_public) == "n" || $is_public == "0")) {
 		$is_public = 0;
 	} else {
 		exit_error("The 'public' parameter must be either 1 (yes) or 0 (no)");
@@ -102,19 +90,19 @@ function frs_do_addpackage() {
 					"package_name"	=> $name,
 					"is_public"		=> $is_public
 				);
-				
+
 	$res = $SOAP->call("addPackage", $cmd_params);
 	if (($error = $SOAP->getError())) {
 		$LOG->add($SOAP->responseData);
 		exit_error($error, $SOAP->faultcode);
 	}
-	
-	show_output($res);
+
+	echo $res."\n";
 }
 
-function frs_do_releaselist() {
+function frs_do_releases() {
 	global $PARAMS, $SOAP, $LOG;
-	
+
 	if (!($package_id = get_parameter($PARAMS, "package", true))) {
 		// default value if adding
 		exit_error("You must define a package with the --package parameter");
@@ -143,7 +131,7 @@ function frs_do_releaselist() {
 
 function frs_do_addrelease() {
 	global $PARAMS, $SOAP, $LOG;
-	
+
 	if (!($package_id = get_parameter($PARAMS, "package", true))) {
 		exit_error("You must define a package with the --package parameter");
 	}
@@ -152,7 +140,7 @@ function frs_do_addrelease() {
 	if (!$name || strlen($name) == 0) {
 		exit_error("You must enter the name of the package with the --name parameter");
 	}
-	
+
 	$notes = get_parameter($PARAMS, "notes", true);
 	if (!$notes || strlen($notes) == 0) {
 		$notes = "";
@@ -186,11 +174,11 @@ function frs_do_addrelease() {
 	foreach ($pkg_res as $pkg) {
 		if ($pkg["package_id"] == $package_id) $found = true;
 	}
-	
+
 	if (!$found) {
 		exit_error("Package #".$package_id." does not belong to the project");
 	}
-	
+
 	$add_params = array(
 						"group_id"		=> $group_id,
 						"package_id"	=> $package_id,
@@ -205,13 +193,13 @@ function frs_do_addrelease() {
 		$LOG->add($SOAP->responseData);
 		exit_error($error, $SOAP->faultcode);
 	}
-	
-	show_output($res);
+
+	echo $res."\n";
 }
 
-function frs_do_filelist() {
+function frs_do_files() {
 	global $PARAMS, $SOAP, $LOG;
-	
+
 	if (!($package_id = get_parameter($PARAMS, "package", true))) {
 		exit_error("You must define a package with the --package parameter");
 	}
@@ -238,7 +226,7 @@ function frs_do_filelist() {
 
 function frs_do_getfile() {
 	global $PARAMS, $SOAP, $LOG;
-	
+
 	if (!($package_id = get_parameter($PARAMS, "package", true))) {
 		exit_error("You must define a package with the --package parameter");
 	}
@@ -252,7 +240,7 @@ function frs_do_getfile() {
 	}
 
 	// Should we save the contents to a file?
-	$output = get_parameter($PARAMS, "output", true); 
+	$output = get_parameter($PARAMS, "output", true);
 	if ($output) {
 		if (file_exists($output)) {
 			$sure = get_user_input("File $output already exists. Do you want to overwrite it? (y/n): ");
@@ -276,7 +264,7 @@ function frs_do_getfile() {
 		$LOG->add($SOAP->responseData);
 		exit_error($error, $SOAP->faultcode);
 	}
-	
+
 	$file = base64_decode($res);
 
 	if ($output) {
@@ -287,10 +275,10 @@ function frs_do_getfile() {
 				$output = get_user_input("Please specify a new file name: ");
 			}
 		}
-		
+
 		fwrite($fh, $file, strlen($file));
 		fclose($fh);
-		
+
 		echo "File retrieved successfully.\n";
 	} else {
 		echo $file;		// if not saving to a file, output to screen
@@ -307,19 +295,19 @@ function frs_do_addfile() {
 	if (!($release_id = get_parameter($PARAMS, "release", true))) {
 		exit_error("You must define a release with the --release parameter");
 	}
-	
+
 	if (!($file = get_parameter($PARAMS, "file", true))) {
 		exit_error("You must define a file with the --file parameter");
-	} else if (!file_exists($file)) {
+	} elseif (!file_exists($file)) {
 		exit_error("File '$file' doesn't exist");
-	} else if (!($fh = fopen($file, "rb"))) {
+	} elseif (!($fh = fopen($file, "rb"))) {
 		exit_error("Could not open '$file' for reading");
 	}
-	
+
 	if (!($type_id = get_parameter($PARAMS, "type", true))) {
 		$type_id = 9999;			// 9999 = "other"
 	}
-	
+
 	if (!($processor_id = get_parameter($PARAMS, "processor", true))) {
 		$processor_id = 9999;			// 9999 = "other"
 	}
@@ -334,15 +322,15 @@ function frs_do_addfile() {
 	} else {
 		$release_time = time();
 	}
-	
+
 	$name = basename($file);
 	$contents = fread($fh, filesize($file));
 	$base64_contents = base64_encode($contents);
-	
+
 	fclose($fh);
-	
+
 	$group_id = get_working_group($PARAMS);
-	
+
 	$add_params = array(
 					"group_id"			=> $group_id,
 					"package_id"		=> $package_id,
@@ -359,6 +347,6 @@ function frs_do_addfile() {
 		$LOG->add($SOAP->responseData);
 		exit_error($error, $SOAP->faultcode);
 	}
-	
-	show_output($res);
+
+	echo $res."\n";
 }

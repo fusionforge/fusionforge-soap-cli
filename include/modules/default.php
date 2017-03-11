@@ -5,8 +5,6 @@
  * Copyright 2005 GForge, LLC
  * http://fusionforge.org/
  *
- * @version   $Id: default.php,v 1.2 2005/10/11 14:34:14 marcelo Exp $
- *
  * This file is part of FusionForge.
  *
  * FusionForge is free software; you can redistribute it and/or modify
@@ -133,7 +131,7 @@ EOF;
  * default_do_logout - Terminate the session
  */
 function default_do_logout() {
-	global $PARAMS, $SOAP, $LOG;
+	global $SOAP;
 	
 	$SOAP->call("logout");
 	if (($error = $SOAP->getError())) {
@@ -143,4 +141,3 @@ function default_do_logout() {
 	$SOAP->endSession();
 	echo "Session terminated.\n";
 }
-?>

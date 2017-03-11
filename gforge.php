@@ -6,8 +6,6 @@
  * Copyright 2005 GForge, LLC
  * http://fusionforge.org/
  *
- * @version   $Id: gforge.php,v 1.6 2006/02/15 16:50:45 marcelo Exp $
- *
  * This file is part of FusionForge.
  *
  * FusionForge is free software; you can redistribute it and/or modify
@@ -20,9 +18,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with FusionForge; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with FusionForge; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /**
@@ -69,15 +67,6 @@ require_once(NUSOAP_DIR."nusoap.php");		// Main NuSOAP library
 require_once(GFORGE_CLI_DIR."common.php");	// Common functions, variables and defines
 require_once(GFORGE_CLI_DIR."GForgeSOAP.class.php");	// GForge's SOAP wrapper
 require_once(GFORGE_CLI_DIR."Log.class.php");	// Logging class
-
-// This is automatically done by PHP >= 4.3.0
-// Code copied from http://ar2.php.net/install.unix.commandline
-if (version_compare(phpversion(),'4.3.0','<') || !defined('STDIN')) {
-	define('STDIN',fopen("php://stdin","r"));
-	define('STDOUT',fopen("php://stdout","r"));
-	define('STDERR',fopen("php://stderr","r"));
-	register_shutdown_function( create_function( '' , 'fclose(STDIN); fclose(STDOUT); fclose(STDERR); return true;' ) );
-}
 
 // Disable memory_limit for CLI scripts.
 ini_set("memory_limit", -1);
@@ -144,13 +133,11 @@ if (!file_exists($script)) {
 $PARAMS = array_slice($argv, $function_index);
 $SOAP = new GForgeSOAP();
 
-// Pass control to the appropiate script
+// Pass control to the appropriate script
 include($script);
 
 // End script
 exit(0);
-
-
 
 /////////////////////////////////////////////////////////////////////////////
 /**
@@ -171,6 +158,7 @@ Available modules:
    * scm
    * task
    * tracker
+   * wiki
    
 Available functions for the default module:
    * login: Begin a session with the server.
@@ -178,4 +166,3 @@ Available functions for the default module:
 
 EOT;
 }
-?>

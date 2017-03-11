@@ -5,8 +5,6 @@
  * Copyright 2005 GForge, LLC
  * http://fusionforge.org/
  *
- * @version   $Id: common.php,v 1.5 2005/10/20 18:42:00 marcelo Exp $
- *
  * This file is part of FusionForge.
  *
  * FusionForge is free software; you can redistribute it and/or modify
@@ -30,6 +28,8 @@
 
 /**
  * exit_error - Exits the program displaying an error and returning an error code
+ * @param string $msg
+ * @param int    $errcode
  */
 function exit_error($msg, $errcode=1) {
 	echo "Fatal error: ".$msg."\n";
@@ -63,11 +63,12 @@ function exit_error($msg, $errcode=1) {
  * "--" (like in "--name") parameters with one character are assumed to be preceded by
  * a single "-" (like in "-n")
  *
- * @param array	Array of parameters where we should look
- * @param mixed	A string that specifies the name of the parameter to look for, or an 
+ * @param array	$parameter_array Array of parameters where we should look
+ * @param mixed	$parameter A string that specifies the name of the parameter to look for, or an
  * 	array of aliases (ej: array("name", "n"))
- * @param bool Indicate if the parameter MUST have a value associated to it, and that it is
+ * @param bool $require_value Indicate if the parameter MUST have a value associated to it, and that it is
  *	not just a flag. This can also be seen as "isn't a flag" value
+ * @return bool
  */
 
 function get_parameter(&$parameter_array, $parameter, $require_value=false) {
@@ -96,7 +97,7 @@ function get_parameter(&$parameter_array, $parameter, $require_value=false) {
 				}
 			}
 			
-		} else if (preg_match("/^\\-(.+)/",$parameter_array[$i],$res)) {	// Single character parameter? (IE "-z") or a group of flags (IE "-zxvf")
+		} elseif (preg_match("/^\\-(.+)/",$parameter_array[$i],$res)) {	// Single character parameter? (IE "-z") or a group of flags (IE "-zxvf")
 			$passed_parameter = $res[1];
 			if (strlen($passed_parameter) == 1) {		// Some flag like "-x" or parameter "-U username"
 				// Check to see if there is a value associated to this parameter, like in "-U username".
@@ -133,7 +134,8 @@ function get_parameter(&$parameter_array, $parameter, $require_value=false) {
 /**
  * get_group_id - Given a group UNIX name, returns the group ID or 0 if the group doesn't exists
  *
- * @param	string	UNIX name of the project
+ * @param	string	$unix_group_name UNIX name of the project
+ * @return  int
  */
 function get_group_id($unix_group_name) {
 	static $cached_res = array();
@@ -158,8 +160,9 @@ function get_group_id($unix_group_name) {
  * get_working_group - Return the ID of the group the user is currently working with. The name of the group can be defined
  * on the session or in the parameters.
  *
- * @param array An array of parameters to look for the defined group. If the group isn't in the parameters, looks in the session
- * @param bool Specify if we should abort the program if the group isn't found
+ * @param array $params An array of parameters to look for the defined group. If the group isn't in the parameters, looks in the session
+ * @param bool  $die    Specify if we should abort the program if the group isn't found
+ * @return int|bool
  */
 function get_working_group(&$params, $die=true) {
 	global $SOAP;
@@ -185,8 +188,9 @@ function get_working_group(&$params, $die=true) {
 /**
  * get_user_input - Receive input from the user
  *
- * @param string Text to show to the user
- * @param bool Specify if input shouldn't be shown (useful when asking for passwords)
+ * @param string $text Text to show to the user
+ * @param bool   $hide Specify if input shouldn't be shown (useful when asking for passwords)
+ * @return string
  */
 function get_user_input($text, $hide=false) {
 	if ($text) echo $text;
@@ -201,7 +205,7 @@ function get_user_input($text, $hide=false) {
 
 /**
  * check_date - Check if a date entered by the user is correctly formatted and it is valid.
- * @param	string	Date
+ * @param	string	$date Date
  * @return	string	String with the error (if any)
  */
 function check_date($date) {
@@ -226,7 +230,7 @@ function check_date($date) {
  * to be inserted in the database.
  * 
  * This function assumes the date has the correct format
- * @param	string	Date
+ * @param	string	$date Date
  * @return	int
  */
 function convert_date($date) {
@@ -243,8 +247,8 @@ function convert_date($date) {
 /**
  * show_output - Format a SOAP result in order to display it on the user's screen
  *
- * @param	array	Result of a SOAP call
- * @param	array	Titles to assign to each field (optional).
+ * @param	array	$result     Result of a SOAP call
+ * @param	array	$fieldnames Titles to assign to each field (optional).
  */
 function show_output($result, $fieldnames = array()) {
 	// There are 3 types of output: a scalar (int, string), a vector or a matrix (table-like).
@@ -405,8 +409,9 @@ function show_matrix($result, $fieldnames = array()) {
  * center_text - Given a text and a length, returns a string of length $lenght with $text located in
  * the middle (the string is padded with whitespaces).
  *
- * @param	string
- * @param	int
+ * @param	string $text
+ * @param	int    $length
+ * @return  string
  */
 function center_text($text, $length) {
 	if (strlen($text) >= $length) return $text;
@@ -415,4 +420,3 @@ function center_text($text, $length) {
 	$pad_right = $delta - $pad_left;
 	return str_repeat(" ", $pad_left).$text.str_repeat(" ", $pad_right);
 }
-?>

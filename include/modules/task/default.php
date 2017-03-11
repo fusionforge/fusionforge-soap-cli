@@ -5,8 +5,6 @@
  * Copyright 2005 GForge, LLC
  * http://fusionforge.org/
  *
- * @version   $Id: default.php,v 1.2 2005/10/10 21:01:14 marcelo Exp $
- *
  * This file is part of FusionForge.
  *
  * FusionForge is free software; you can redistribute it and/or modify
@@ -23,7 +21,7 @@
  * along with FusionForge; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
- 
+
 /**
 * Variables passed by parent script:
 * - $SOAP: Soap object to talk to the server
@@ -40,30 +38,24 @@ define("STATUS_CLOSED",	2);
 $module_name = array_shift($PARAMS);		// Pop off module name
 $function_name = array_shift($PARAMS);		// Pop off function name
 
-switch ($function_name) {
-case "list":
-	task_do_list();
-	break;
-case "categories":
-	task_do_categories();
-	break;
-case "add":
-	task_do_add();
-	break;
-case "update":
-	task_do_update();
-	break;
-case "groups":
-	task_do_groups();
-	break;
-default:
-	exit_error("Unknown function name: ".$function_name);
-	break;
+$functions = array("list",
+                   "categories",
+                   "add",
+                   "update",
+                   "groups");
+
+if (empty($function_name)) {
+    exit_error("Please provide function name: ".implode(', ', $functions));
 }
+if (!in_array($function_name, $functions)) {
+    exit_error("Unknown function name: ".$function_name);
+}
+$task_do = 'task_do_'.$function_name;
+$task_do();
 
 function task_do_list() {
 	global $PARAMS, $SOAP, $LOG;
-	
+
 	$group_project_id = get_parameter($PARAMS, "group", true);
 	if (!$group_project_id || !is_numeric($group_project_id)) {
 		exit_error("You must specify the group ID as a valid number with the --group parameter");
@@ -72,31 +64,31 @@ function task_do_list() {
 	$assigned_to = get_parameter($PARAMS, "assigned_to", true);
 	if ($assigned_to && !is_numeric($assigned_to)) {
 		exit_error("You must specify the user ID as a valid number");
-	} else if (!$assigned_to) {
+	} elseif (!$assigned_to) {
 		$assigned_to = "";
 	}
-	
+
 	$category = get_parameter($PARAMS, "category", true);
 	if ($category && !is_numeric($category)) {
 		exit_error("You must specify the category ID as a valid number");
-	} else if (!$category) {
-		$category = "";	
+	} elseif (!$category) {
+		$category = "";
 	}
-	
+
 	$status = get_parameter($PARAMS, "status", true);
 	if (!is_null($status) && $status != 1 && $status != 2) {
 		if (strtolower($status) == "open") $status = 1;
 		else if (strtolower($status) == "closed") $status = 2;
 		else exit_error("Status should be either 1 (open) or 2 (closed)");
-	} else if (is_null($status)) {
+	} elseif (is_null($status)) {
 		$status = "";
 	}
 
 	//TODO: What is this variable for?
 	$group = "";
-	
+
 	$group_id = get_working_group($PARAMS);
-	
+
 	$cmd_params = array(
 				"group_id"			=> $group_id,
 				"group_project_id"	=> $group_project_id,
@@ -110,20 +102,20 @@ function task_do_list() {
 		$LOG->add($SOAP->responseData);
 		exit_error($error, $SOAP->faultcode);
 	}
-	
+
 	show_output($res);
 }
 
 function task_do_categories() {
 	global $PARAMS, $SOAP, $LOG;
-	
+
 	$group_project_id = get_parameter($PARAMS, "group", true);
 	if (!$group_project_id || !is_numeric($group_project_id)) {
 		exit_error("You must specify the group ID as a valid number");
 	}
 
 	$group_id = get_working_group($PARAMS);
-	
+
 	$cmd_params = array(
 					"group_id"			=> $group_id,
 					"group_project_id"	=> $group_project_id
@@ -134,7 +126,7 @@ function task_do_categories() {
 		$LOG->add($SOAP->responseData);
 		exit_error($error, $SOAP->faultcode);
 	}
-	
+
 	show_output($res);
 }
 
@@ -143,18 +135,18 @@ function task_do_categories() {
  */
 function task_do_add() {
 	global $PARAMS, $SOAP, $LOG;
-	
+
 	if (get_parameter($PARAMS, "help")) {
 		echo <<<EOF
 (TODO)
 EOF;
 		return;
 	}
-	
+
 	$add_params = get_task_params(true);
 	$add_desc = $add_params["desc"];
 	$add_data = $add_params["data"];
-	
+
 	// Show summary
 	echo <<<EOF
 Confirm you want to add a new tracker with the following information:
@@ -169,8 +161,7 @@ Category: {$add_desc['category_name']}
 % complete: {$add_desc['percent_complete']}
 Assigned to: {$add_desc['assigned_to']}
 Dependent on: {$add_desc['dependent_on']}
-Details: 
-{$add_desc['details']}
+Details: {$add_desc['details']}
 
 EOF;
 
@@ -181,7 +172,7 @@ EOF;
 	} else {
 		$input = "y";		// commit changes directly
 	}
-	
+
 	if ($input == "yes" || $input == "y") {
 		// Everything is OK... add the task
 		$cmd_params = array(
@@ -211,7 +202,7 @@ EOF;
 
 function task_do_update() {
 	global $PARAMS, $SOAP, $LOG;
-	
+
 	if (get_parameter($PARAMS, "help")) {
 		echo <<<EOF
 (add help)
@@ -219,7 +210,7 @@ EOF;
 
 		return;
 	}
-	
+
 	$update_params = get_task_params(false);
 	$update_desc = $update_params["desc"];
 	$update_data = $update_params["data"];
@@ -262,7 +253,7 @@ EOF;
 	if (array_key_exists("details", $update_desc)) {
 		echo "> Details: \n".$update_desc["details"]."\n";
 	}
-	
+
 	// ask for confirmation if the --noask param is not set
 	if (!get_parameter($PARAMS, array("n", "noask"))) {
 		$input = get_user_input("Is this information correct? (y/n): ");
@@ -270,10 +261,10 @@ EOF;
 	} else {
 		$input = "y";		// commit changes directly
 	}
-	
+
 	// Update the information array
 	$update_params = $update_data["original_data"];
-	
+
 	if ($input == "yes" || $input == "y") {
 		if (array_key_exists("summary", $update_data)) {
 			$update_params["summary"] = $update_data["summary"];
@@ -308,12 +299,12 @@ EOF;
 		if (array_key_exists("status_id", $update_data)) {
 			$update_params["status_id"] = $update_data["status_id"];
 		}
-		
+
 		$update_params["group_id"] = $update_data["group_id"];
-	
+
 		//TODO: Manage the new group_project_id
 		$update_params["new_group_project_id"] = $update_params["group_project_id"];
-		
+
 		$res = $SOAP->call("updateProjectTask", $update_params);
 		if (($error = $SOAP->getError())) {
 			$LOG->add($SOAP->responseData);
@@ -327,8 +318,8 @@ EOF;
 /**
  * Get the variables for a task from the command line. This function is used when
  * adding/updating a task
- * 
- * @param bool	Specify that we're getting the variables for adding a task and not updating
+ *
+ * @param bool	$adding Specify that we're getting the variables for adding a task and not updating
  * @return array
  */
 function get_task_params($adding = false) {
@@ -337,14 +328,14 @@ function get_task_params($adding = false) {
 	$ret = array();
 	$ret["data"] = array();
 	$ret["desc"] = array();
-	
+
 	$updating = !$adding;		// we're updating if and only if we're not adding
-	
+
 	$group_project_id = get_parameter($PARAMS, "group", true);
 	if (!$group_project_id || !is_numeric($group_project_id)) {
 		exit_error("You must specify the group ID as a valid number");
 	}
-	
+
 	// Force the input of the task ID only if we're updating
 	if ($updating) {
 		if (!($project_task_id = get_parameter($PARAMS, "id", true))) {
@@ -353,9 +344,9 @@ function get_task_params($adding = false) {
 		if (!$project_task_id || !is_numeric($project_task_id)) {
 			exit_error("You must specify the task ID as a valid number");
 		}
-		
+
 		// check the task ID is valid
-		$tasks = $SOAP->call("getProjectTasks", array("group_id" => $group_id, "group_project_id" => $group_project_id, 
+		$tasks = $SOAP->call("getProjectTasks", array("group_id" => $group_id, "group_project_id" => $group_project_id,
 			"assigned_to" => "", "status" => "", "category" => "", "group" => ""));
 		if (($error = $SOAP->getError())) {
 			$LOG->add($SOAP->responseData);
@@ -369,14 +360,13 @@ function get_task_params($adding = false) {
 				break;
 			}
 		}
-		
+
 		// The task wasn't found
 		if (count($original_data) == 0) {
 			exit_error("The task #".$project_task_id." doesn't exist");
 		}
 	}
 
-	
 	// Check the summary
 	if (!($summary = get_parameter($PARAMS, "summary")) && $adding) {
 		$summary = get_user_input("Summary for this task: ");
@@ -385,7 +375,7 @@ function get_task_params($adding = false) {
 	if ($adding && !$summary) {		// Summary is required only if adding an artifact
 		exit_error("You must specify a summary for this item");
 	}
-	
+
 	// Check the details
 	if (!($details = get_parameter($PARAMS, "details")) && $adding) {
 		$details = get_user_input("Details for this task: ");
@@ -394,7 +384,7 @@ function get_task_params($adding = false) {
 	if ($adding && !$details) {
 		exit_error("You must specify a detail for this item");
 	}
-	
+
 	// Check the priority
 	if (!($priority = get_parameter($PARAMS, "priority", true)) && $adding) {
 		// set a default value (only if adding)
@@ -412,7 +402,7 @@ function get_task_params($adding = false) {
 	if (!is_null($hours) && !is_numeric($hours)) {
 		exit_error("The estimated hours must be a valid number");
 	}
-	
+
 	// Check the start date
 	$start_date = get_parameter($PARAMS, "start_date", true);
 	if ($start_date) {
@@ -421,12 +411,12 @@ function get_task_params($adding = false) {
 		} else {
 			$start_date = convert_date($start_date);
 		}
-	} else if ($adding) {
+	} elseif ($adding) {
 		// set a default value (only if adding)
 		$start_date = time();
 	}
 	$start_date_desc = strftime("%Y-%m-%d", $start_date);
-	
+
 	// Check the end date
 	$end_date = get_parameter($PARAMS, "end_date", true);
 	if ($end_date) {
@@ -435,7 +425,7 @@ function get_task_params($adding = false) {
 		} else {
 			$end_date = convert_date($end_date);
 		}
-	} else if ($adding) {
+	} elseif ($adding) {
 		// set a default value (only if adding): one week after the starting date
 		$end_date = $start_date + (60 * 60 * 24 * 7);
 	}
@@ -448,7 +438,7 @@ function get_task_params($adding = false) {
 	if ($category_id && !is_numeric($category_id)) {
 		exit_error("The category ID must be a valid number");
 	}
-	
+
 	// Check the percent
 	if (!($percent_complete = get_parameter($PARAMS, "percent", true)) && $adding) {
 		// default value if adding
@@ -457,7 +447,7 @@ function get_task_params($adding = false) {
 	if (!is_null($percent_complete) && (!is_numeric($percent_complete) || $percent_complete < 0 || $percent_complete > 100 || $percent_complete % 5 != 0)) {
 		exit_error("The percent must be a number divisible by 5 between 0 and 100");
 	}
-	
+
 	// Check the status (only if updating)
 	$status_desc = "";
 	if ($updating) {
@@ -469,11 +459,11 @@ function get_task_params($adding = false) {
 				$status_id = STATUS_CLOSED;
 				$status_desc = "Closed";
 			} else {
-				exit_error("Status must be either ".STATUS_OPEN." (open) or ".STATUS_CLOSED." (closed)"); 
+				exit_error("Status must be either ".STATUS_OPEN." (open) or ".STATUS_CLOSED." (closed)");
 			}
 		}
 	}
-	
+
 	// assigned_to is a list of comma-separated user IDs
 	$assigned_to = get_parameter($PARAMS, "assigned_to", true);
 	if ($assigned_to) {
@@ -481,8 +471,8 @@ function get_task_params($adding = false) {
 		if (strtolower($assigned_to) == "nobody") {
 			$assigned_to = array(100);
 		} else {
-			$assigned_to = split(",", $assigned_to);
-			
+			$assigned_to = explode(",", $assigned_to);
+
 			//check they're all valid ints
 			for ($i = 0; $i < count($assigned_to); $i++) {
 				if (!is_numeric($assigned_to[$i])) {
@@ -495,7 +485,7 @@ function get_task_params($adding = false) {
 	} elseif ($adding) {
 		$assigned_to = array();
 	}
-	
+
 	// dependent_on is a list of comma-separated task IDs
 	$dependent_on = get_parameter($PARAMS, "dependent_on", true);
 	if ($dependent_on) {
@@ -503,8 +493,8 @@ function get_task_params($adding = false) {
 		if (strtolower($dependent_on) == "none") {
 			$dependent_on = array();
 		} else {
-			$dependent_on = split(",", $dependent_on);
-			
+			$dependent_on = explode(",", $dependent_on);
+
 			//check they're all valid ints
 			for ($i = 0; $i < count($dependent_on); $i++) {
 				if (!is_numeric($dependent_on[$i])) {
@@ -519,7 +509,7 @@ function get_task_params($adding = false) {
 	} else {	// if updating, set to null to indicate we don't want any changes
 		$dependent_on = null;
 	}
-	
+
 	$group_id = get_working_group($PARAMS);
 
 	// Check for invalid IDs
@@ -528,7 +518,7 @@ function get_task_params($adding = false) {
 		exit_error("Group ".$group_id." doesn't exist");
 	}
 	$group_name = $group_res[0]["group_name"];
-	
+
 	$project_group_res = $SOAP->call("getProjectGroups", array("group_id" => $group_id));
 	if (($error = $SOAP->getError())) {
 		$LOG->add($SOAP->responseData);
@@ -540,24 +530,24 @@ function get_task_params($adding = false) {
 			$found = true;
 			$group_project_name = $project_group["name"];
 			break;
-		}		
+		}
 	}
 	if (!$found) {
 		exit_error("Group #".$group_project_id." doesn't exist");
 	}
-	
+
 	// check the category_id exists
 	$category_name = "";
 	if ($category_id && $category_id != 100) {
 		$categories_res = $SOAP->call("getProjectTaskCategories", array(
-					"group_id" => $group_id, 
+					"group_id" => $group_id,
 					"group_project_id" => $group_project_id
 					));
 		if (($error = $SOAP->getError())) {
 			$LOG->add($SOAP->responseData);
 			exit_error($error, $SOAP->faultcode);
 		}
-		
+
 		$found = false;
 		foreach ($categories_res as $category) {
 			if ($category["category_id"] == $category_id) {
@@ -566,14 +556,14 @@ function get_task_params($adding = false) {
 				break;
 			}
 		}
-		
+
 		if (!$found) {
 			exit_error("Category #".$category_id." doesn't exist");
 		}
 	} elseif ($adding) {
 		$category_name = "(none)";
 	}
-	
+
 	// check the users IDs
 	$assigned_to_names = "";
 	if (count($assigned_to) > 0) {
@@ -582,7 +572,7 @@ function get_task_params($adding = false) {
 			$LOG->add($SOAP->responseData);
 			exit_error($error, $SOAP->faultcode);
 		}
-		
+
 		// check all IDs are valid
 		foreach ($assigned_to as $user_id) {
 			$found = false;
@@ -593,7 +583,7 @@ function get_task_params($adding = false) {
 					break;
 				}
 			}
-			
+
 			if (!$found) {
 				exit_error("Invalid user ID: ".$user_id);
 			}
@@ -603,7 +593,7 @@ function get_task_params($adding = false) {
 	} elseif ($adding) {
 		$assigned_to_names = "(nobody)";
 	}
-	
+
 	// check the dependent tasks
 	$dependent_on_names = "";
 	if (count($dependent_on) > 0) {
@@ -619,7 +609,7 @@ function get_task_params($adding = false) {
 			$LOG->add($SOAP->responseData);
 			exit_error($error, $SOAP->faultcode);
 		}
-		
+
 		foreach ($dependent_on as $dependent_on_id) {
 			$found = false;
 			foreach ($tasks_res as $task) {
@@ -656,7 +646,7 @@ function get_task_params($adding = false) {
 	 	if (!is_null($dependent_on)) $ret["data"]["dependent_on"] = $dependent_on;
 	 	if (!is_null($status_id)) $ret["data"]["status_id"] = $status_id;
 
-	 	$ret["desc"]["group_name"] = $group_name; 
+	 	$ret["desc"]["group_name"] = $group_name;
 	 	$ret["desc"]["group_project_name"] = $group_project_name;
 	 	$ret["desc"]["original_summary"] = $original_summary;
 	 	if ($summary) $ret["desc"]["summary"] = $summary;
@@ -682,7 +672,7 @@ function get_task_params($adding = false) {
 	 	$ret["data"]["assigned_to"] = $assigned_to;
 	 	$ret["data"]["dependent_on"] = $dependent_on;
 
-	 	$ret["desc"]["group_name"] = $group_name; 
+	 	$ret["desc"]["group_name"] = $group_name;
 	 	$ret["desc"]["group_project_name"] = $group_project_name;
 	 	$ret["desc"]["summary"] = $summary;
 	 	$ret["desc"]["priority"] = $priority;
@@ -695,28 +685,23 @@ function get_task_params($adding = false) {
 	 	$ret["desc"]["dependent_on"] = $dependent_on_names;
 	 	$ret["desc"]["details"] = $details;
  	}
- 	
+
  	return $ret;
 }
 
 function task_do_groups() {
-	global $PARAMS, $SOAP, $LOG;
-	
+	global $PARAMS, $SOAP;
+
 	if (get_parameter($PARAMS, "help")) {
 		return;
 	}
-	
+
 	$group_id = get_working_group($PARAMS);
-	
+
 	$res = $SOAP->call("getProjectGroups", array("group_id" => $group_id));
 	if (($error = $SOAP->getError())) {
 		exit_error($error, $SOAP->faultcode);
 	}
-	
+
 	show_output($res);
-
 }
-
-
-
-?>

@@ -5,8 +5,6 @@
  * Copyright 2005 GForge, LLC
  * http://fusionforge.org/
  *
- * @version   $Id: default.php,v 1.2 2005/10/10 21:01:14 marcelo Exp $
- *
  * This file is part of FusionForge.
  *
  * FusionForge is free software; you can redistribute it and/or modify
@@ -36,35 +34,34 @@
 $module_name = array_shift($PARAMS);		// Pop off module name ("project")
 $function_name = array_shift($PARAMS);		// Pop off function name
 
-switch ($function_name) {
-case "list":
-	project_do_list();
-	break;
-case "mylist":
-	project_do_mylist();
-	break;
-default:
-	exit_error("Unknown function name: ".$function_name);
-	break;
-}
+$functions = array("list",
+                   "mylist");
 
+if (empty($function_name)) {
+    exit_error("Please provide function name: ".implode(', ', $functions));
+}
+if (!in_array($function_name, $functions)) {
+    exit_error("Unknown function name: ".$function_name);
+}
+$project_do = 'project_do_'.$function_name;
+$project_do();
 
 ////////////////////////////////////////////////
 /**
  * project_do_list - List of projects in the server
  */
 function project_do_list() {
-	global $PARAMS, $SOAP, $LOG;
-	
+	global $PARAMS, $SOAP;
+
 	if (get_parameter($PARAMS, "help")) {
 		return;
 	}
-	
+
 	$res = $SOAP->call("getPublicProjectNames");
 	if (($error = $SOAP->getError())) {
 		exit_error($error, $SOAP->faultcode);
 	}
-	
+
 	show_output($res, array("Project name"));
 
 }
@@ -73,20 +70,20 @@ function project_do_list() {
  * project_do_mylist - List of projects available to the logged user
  */
 function project_do_mylist() {
-	global $PARAMS, $SOAP, $LOG;
-	
+	global $PARAMS, $SOAP;
+
 	if (get_parameter($PARAMS, "help")) {
 		return;
 	}
-	
+
 	// Fetch the user ID from the database
 	$params = array("user_ids" => array($SOAP->getSessionUser()));
 	$res = $SOAP->call("getUsersByName",$params);
-	
+
 	if (($error = $SOAP->getError())) {
 		exit_error($error, $SOAP->faultcode);
 	}
-	
+
 	$user_id = $res[0]["user_id"];
 	$params = array("user_id" => $user_id);
 	$res = $SOAP->call("userGetGroups", $params);
@@ -94,8 +91,5 @@ function project_do_mylist() {
 		exit_error($error, $SOAP->faultcode);
 	}
 
-	
 	show_output($res);
 }
-
-?>

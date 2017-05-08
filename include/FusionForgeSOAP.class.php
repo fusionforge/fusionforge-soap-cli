@@ -53,7 +53,7 @@ class FusionForgeSOAP extends nusoap_client {
 		} elseif (array_key_exists("HOMEPATH", $_ENV) && array_key_exists("HOMEDRIVE", $_ENV)) {		// For Windows
 			$session_dir = $_ENV["HOMEDRIVE"]."\\".$_ENV["HOMEPATH"]."\\";
 		}
-		$this->session_file = $session_dir.".gforgerc";
+		$this->session_file = $session_dir.".fforgerc";
 		$this->readSession();
 	}
 

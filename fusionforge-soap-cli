@@ -132,7 +132,7 @@ if (!file_exists($script)) {
 // Set up the parameters for the script... we don't need to pass that script the parameters that were
 // passed to THIS script
 $PARAMS = array_slice($argv, $function_index);
-$SOAP = new FForgeSOAP();
+$SOAP = new FusionForgeSOAP();
 
 // Pass control to the appropriate script
 include($script);

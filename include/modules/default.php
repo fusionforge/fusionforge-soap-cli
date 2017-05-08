@@ -53,7 +53,7 @@ function default_do_login() {
 
 	if (get_parameter($PARAMS, "help")) {
 		echo <<<EOF
-login - Log into GForge server
+login - Log into FusionForge server
 Available parameters:
    --username=<username> or -U <username>    Specify the user name
    --password=<password> or -p <password>    Specify the password. If none is entered, it
@@ -62,7 +62,7 @@ Available parameters:
    --help                                    Show this screen
 
 Example:
-   gforge login -U john -p doe --project=myproject
+   fusionforge-soap-api login -U john -p doe --project=myproject
 EOF;
 		return;
 	}
